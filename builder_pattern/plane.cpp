@@ -33,14 +33,30 @@ class NormalInterior final: public Interior{
     }
 };
 
-class Engine: public IBrand{
+class Engine{
 public:
     void setSpeed(int spd);
     int getSpeed();
     void setBrand(const std::string& name);
+    std::string getBrandName() {return this->brand.getBrandName();}
 private:
     int engineSpeed;
     IBrand brand;
+};
+
+class BMWEngine final: public Engine{
+public:
+    BMWEngine() {
+        setSpeed(100);
+        setBrand("BMW Engine");
+    }
+};
+class MercedezEngine final: public Engine{
+public:
+    MercedezEngine() {
+        setSpeed(80);
+        setBrand("Mercedez Engine");
+    }
 };
 
 class Plane{
@@ -48,7 +64,8 @@ public:
     void setEngine(Engine*);
     void setInterior(Interior*);
     void setBrand(IBrand*);
-    std::string getInteriorBrandName() {return this->interior->getBrandName();}
+    std::string getEngine() {return this->engine->getBrandName();}
+    std::string getInterior() {return this->interior->getBrandName();}
     std::string getBrand() {return this->brand->getBrandName();}
 private:
     Engine* engine;
@@ -56,10 +73,21 @@ private:
     IBrand* brand;
 };
 
+
 class Builder{
 public:
-    void setEngine() {
-
+    Builder() {plane = new Plane;}
+    void setEngine(Engine* engine) {
+        plane->setEngine(engine);
+    }
+    void setInterior(Interior* interior) {
+        plane->setInterior(interior);
+    }
+    void setBrand(IBrand* brand) {
+        plane->setBrand(brand);
+    }
+    Plane* getPlane() {
+        return this->plane;
     }
 private:
     Plane* plane;
@@ -67,13 +95,27 @@ private:
 
 class Director{
 public:
-  
+    Director() {builder = new Builder;}
+    Plane* createPlane(Engine* engine, Interior* interior, IBrand* brand) {
+        builder->setEngine(engine);
+        builder->setInterior(interior);
+        builder->setBrand(brand);
+        return builder->getPlane();
+    }
+private:
+    Builder* builder;
 };
 
 int main() {
-    Plane plane;
-    plane.setInterior(new LuxuryInterior);
-    std::cout << plane.getInteriorBrandName() << std::endl;
+    Director director;
+    MercedezEngine benz_engine;
+    LuxuryInterior lv_interior;
+    IBrand Virgin;
+    Virgin.setBrand("Virgin Airline");
+    
+    Plane* plane = director.createPlane(&benz_engine, &lv_interior, &Virgin);
+    std::cout << plane->getEngine() << ',' << plane->getInterior() << ',' << plane->getBrand() << std::endl;
+    return 0;
 }
 
 // implementing IBrand
